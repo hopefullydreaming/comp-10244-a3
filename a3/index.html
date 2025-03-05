@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <!-- StAuth10244: I Hope Hemingway, 000912927 certify that this material is my original work. No other person's work has been us ed without due acknowledgement. I have not made my work available to anyone else. -->
+    <title>Cards!</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!--script src="deck.js"></script-->
+  </head>
+  <body>
+
+    <div id="mydiv"></div>
+    <ul id="myList"></ul>
+
+    <script type="text/babel">
+
+      const suits = ["C","H","S","D"];
+      const values = ["A", 2, 3, 4, 5, 6, 7, 8, 9, 10,"J","Q","K"];
+
+      function createDeck(){
+        let deck = [];
+        for(let i=0; i<suits.length; i++){
+          for(let j=0; j<values.length; j++){
+            deck.push(createCard(values[j],suits[i]));
+          }
+        }
+        return deck;
+      }
+
+      function createCard(value, suit){
+        let card = <p>{value}{suit}</p>;
+        return card;
+      }
+
+
+      const deck = createDeck();
+      const hand = [];
+      let myList = hand.map(
+        (card) => <li>{card}</li>
+      );
+
+      const container = document.getElementById('myList');
+      const root = ReactDOM.createRoot(container);
+      root.render(hand);
+
+      for (let i=0; i<deck.length; i++){
+        hand.push(deck[i]);
+      }
+    </script>
+
+  </body>
+</html>
+
+
+
+
+
+
