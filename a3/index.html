@@ -11,26 +11,36 @@
   </head>
   <body>
 
-    <div id="mydiv"></div>
+    <div>
+      <img src="images/TOP.jpg">
+      <button>Deal 5</button>
+      <button>Deal 7</button>
+      <button>Reset</button>
+      <button>Toss</button>
+      <button>Wildcard</button>
+      <button>Regroup</button>
+
+    </div>
     <ul id="myList"></ul>
 
     <script type="text/babel">
 
-      const suits = ["C","H","S","D"];
-      const values = ["A", 2, 3, 4, 5, 6, 7, 8, 9, 10,"J","Q","K"];
+      const suits = ["CLUBS","HEARTS","SPADES","DIAMONDS"];
+      const values = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
 
       function createDeck(){
         let deck = [];
         for(let i=0; i<suits.length; i++){
           for(let j=0; j<values.length; j++){
-            deck.push(createCard(values[j],suits[i]));
+            deck.push(createCard(suits[i],values[j]));
           }
         }
         return deck;
       }
 
-      function createCard(value, suit){
-        let card = <p>{value}{suit}</p>;
+      function createCard(suit, value){
+        
+        let card = <img src="images/{suit}{value}.jpg"/>;//<p>images/{suit}{value}.jpg</p>//
         return card;
       }
 
