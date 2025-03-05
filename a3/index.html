@@ -12,53 +12,61 @@
   <body>
 
     <div>
-      <img src="images/TOP.jpg">
+      <div onclick="dealOneCard()"><img src="images/TOP.jpg" ></div>
       <button>Deal 5</button>
       <button>Deal 7</button>
       <button>Reset</button>
       <button>Toss</button>
       <button>Wildcard</button>
       <button>Regroup</button>
-
     </div>
+
     <ul id="myList"></ul>
 
     <script type="text/babel">
 
       const suits = ["CLUBS","HEARTS","SPADES","DIAMONDS"];
-      
 
       function createDeck(){
         let deck = [];
         for(let i=0; i<suits.length; i++){
           for(let value=1; value<14; value++){
             let name = "images/" + suits[i] + value + ".jpg";
-            deck.push(createCard(name));
+            let id = suits[i][0] + value;
+            deck.push(createCard(name, id));
           }
         }
         return deck;
       }
 
-      function createCard(name){
-        
-        let card = <img src={name}/>;//<p>images/{suit}{value}.jpg</p>//
-        return card;
+      function createCard(id, src){
+        return <img key={id} src={src}/>;
       }
 
+      function displayAll(){
+        console.log("display all")
+        for (let i=0; i<deck.length; i++){
+          dealOneCard()
+        }
+      }
+
+      function dealOneCard(){
+        hand.push(deck[0]);
+        console.log("added card")
+        deck.shift();
+      }
 
       const deck = createDeck();
       const hand = [];
       let myList = hand.map(
-        (card) => <li>{card}</li>
+        function(myStr){return <li>{myStr}</li>;}
       );
 
       const container = document.getElementById('myList');
       const root = ReactDOM.createRoot(container);
-      root.render(hand);
+      root.render(myList);
 
-      for (let i=0; i<deck.length; i++){
-        hand.push(deck[i]);
-      }
+      
     </script>
 
   </body>
