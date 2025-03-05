@@ -7,6 +7,18 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      body{
+        background-color: #DDA0DD;
+      }
+      img{
+        margin: 3px;
+        border: 4px solid #DDA0DD;
+      }
+      .picked{
+        border: 4px solid #9400D3;
+      }
+    </style>
   </head>
   <body>
 
@@ -20,6 +32,9 @@
       const suits = ["CLUBS","HEARTS","SPADES","DIAMONDS"];
       const deckContext = React.createContext()
       const deckSetContext = React.createContext()
+      var hide = ""
+      var hasCards = "";
+      var picked = null;
 
       function createDeck(){
         let deck = [];
@@ -27,14 +42,35 @@
           for(let value=1; value<14; value++){
             let name = "images/" + suits[i] + value + ".jpg";
             let id = suits[i][0] + value;
-            deck.push(<Card id={id} name={name} />);
+            deck.push(<Card key={id} id={id} src={name} />);
           }
         }
+        for (let i = deck.length - 1; i > 0; i--) { 
+            const j = Math.floor(Math.random() * (i + 1)); 
+            [deck[i], deck[j]] = [deck[j], deck[i]]; 
+          }
         return deck;
       }
 
+      const pickHandler = event =>{
+        if (picked == null)
+          pick(event)
+        else if (picked != null)
+          unpick(event)
+      }
+
+      function pick(event){
+        event.target.className = "picked"
+        picked = event.target;
+      }
+
+      function unpick(event){
+        picked.className = null
+        picked = null
+      }
+
       function Card(props){
-        return <img key={props.id} src={props.name}/>;
+        return <img onClick={pickHandler} src={props.src}/>;
       }
 
       function displayAll(){
@@ -56,25 +92,65 @@
         
         const [hand, setHand] = React.useState([]);
         
-        const addCard = () => {
-          console.log("about to add",deck[0].props.id)
-          console.log(hand)
-          setHand(hand =>[
-          ...hand,
-          deck[0]
+        async function addCard(){
+          await setHand(hand =>[
+            ...hand,
+            deck[0]
           ]);
-          console.log("just added",deck[0].props.id)
+          console.log(deck[0])
           deck.shift();
+          if(deck.length == 0){
+            hasCards = <p>no cards remaining</p>
+
+            hide = "hidden";
+          }
         }
         
+        async function addFive(){
+          await reset()
+          for(let i=0; i<5; i++){
+            await addCard()
+          }
+        }
+
+        async function addSeven(){
+          await reset()
+          for(let i=0; i<7; i++){
+            await addCard()
+          }
+        }
+
+        async function reset(){
+          // put hand back in deck
+          for (let i=0; i<hand.length; i++){
+            deck.push(hand[i])
+          }
+          hide = ""
+          hasCards = ""
+
+          // empty hand
+          await setHand(hand =>[]);
+
+          //shuffle
+          for (let i = deck.length - 1; i > 0; i--) { 
+            const j = Math.floor(Math.random() * (i + 1)); 
+            [deck[i], deck[j]] = [deck[j], deck[i]]; 
+          } ; 
+        }
+
         let handDisplay = hand.map(card => (
                 {card}
               ))
 
-
         return(
           <>
-            <div onClick={addCard}><img src="images/TOP.jpg" /></div>
+            <div onClick={addCard} ><img src="images/TOP.jpg" hidden={hide}/>{hasCards}</div>
+            <button onClick={addFive}>Deal 5</button>
+            <button onClick={addSeven}>Deal 7</button>
+            <button onClick={reset}>Reset</button>
+            <button>Toss</button>
+            <button>Wildcard</button>
+            <button>Regroup</button>
             <div>
               {hand}
             </div>
@@ -83,25 +159,25 @@
         )
       }
 
-      function Deck(){
-        //const [deck, setDeck] = React.useState(createDeck());
+       function Deck(){
+      //   //const [deck, setDeck] = React.useState(createDeck());
 
-        //<deckContext.Provider value={deck}>
-        //    </deckContext.Provider>
-        //    <deckSetContext.Provider value={setDeck}>
-        //    </deckSetContext.Provider>
-        return(
-          <div>
+      //   //<deckContext.Provider value={deck}>
+      //   //    </deckContext.Provider>
+      //   //    <deckSetContext.Provider value={setDeck}>
+      //   //    </deckSetContext.Provider>
+         return(
+           <div></div>);}
             
-            <button>Deal 5</button>
-            <button>Deal 7</button>
-            <button>Reset</button>
-            <button>Toss</button>
-            <button>Wildcard</button>
-            <button>Regroup</button>
-          </div>
-        )
-      }
+      //       <button>Deal 5</button>
+      //       <button>Deal 7</button>
+      //       <button>Reset</button>
+      //       <button>Toss</button>
+      //       <button>Wildcard</button>
+      //       <button>Regroup</button>
+      //      </div>
+      //   )
+      //  }
 // <!div onClick={Hand.addCard([...hand, deck[0]])}><img src="images/TOP.jpg" /></div>
 
       const deck = createDeck();
