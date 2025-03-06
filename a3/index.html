@@ -171,7 +171,7 @@
             const tempHand = [];
             for(let i=0; i<hand.length; i++){
               if (i != pickedIndex){
-                tempHand[i] = hand[i];
+                tempHand.push(hand[i]);
               }
             }
             await setHand(tempHand);
