@@ -16,7 +16,7 @@
         border: 4px solid #DDA0DD;
       }
       .picked{
-        border: 4px solid #9400D3;
+        border-color: #9400D3;
       }
     </style>
   </head>
@@ -27,14 +27,13 @@
 
     <script type="text/babel">
 
-      //import { useState } from 'react';
-
       const suits = ["CLUBS","HEARTS","SPADES","DIAMONDS"];
       const handContext = React.createContext()
-      //const deckSetContext = React.createContext()
       var hide = ""
       var hasCards = "";
       var picked = null;
+      var pickedIndex = null;
+      var wildCount = 0;
 
       function createDeck(){
         let deck = [];
@@ -62,8 +61,7 @@
           }else if (picked != null && event.target.className == "picked")
             unpick()
           else{
-            //console.log(picked.id, findCardIndex(picked.id), event.currentTarget.id, findCardIndex(event.currentTarget.id))
-            swapCards(findCardIndex(picked.id), findCardIndex(event.currentTarget.id));
+            swapCards(pickedIndex, findCardIndex(event.currentTarget.id));
             unpick()
 
         }}
@@ -71,18 +69,15 @@
         function pick(event){
           event.target.className = "picked"
           picked = event.target;
+          pickedIndex = findCardIndex(picked.id);
         }
 
         function unpick(){
           picked.className = null
           picked = null
+          pickedIndex = null
         }
 
-        // async function swapCards(event){
-        //   hand.swapCards(picked.id, event.currentTarget.id)
-        
-        // }
-      
         function findCardIndex(id){
           let i = 0
           let found = false;
@@ -102,47 +97,19 @@
         return <img onClick={pickHandler} id={props.id} src={props.src}/>;
       }
 
-      
-
       const deck = createDeck();
 
       function Hand(){
-        // deck = React.useContext(deckContext)
-        // setDeck = React.useContext(deskSetContext)
-        // const deck = createDeck();
-        //console.log(deck)
         const [hand, setHand] = React.useState([]);
-
-        // function createDeck(){
-        //   let deck = [];
-        //   for(let i=0; i<suits.length; i++){
-        //     for(let value=1; value<14; value++){
-        //       let name = "images/" + suits[i] + value + ".jpg";
-        //       let id = suits[i][0] + value;
-        //       deck.push(<Card key={id} id={id} src={name} />);
-        //     }
-        //   }
-        //   for (let i = deck.length - 1; i > 0; i--) { 
-        //       const j = Math.floor(Math.random() * (i + 1)); 
-        //       [deck[i], deck[j]] = [deck[j], deck[i]]; 
-        //     }
-        //   return deck;
-        // }
-        
-        // function Card(props){
-        //   return <img onClick={pickHandler} id={props.id} src={props.src}/>;
-        // }
 
         async function addCard(){
           await setHand(hand =>[
             ...hand,
             deck[0]
           ]);
-          // console.log(deck[0])
           deck.shift();
           if(deck.length == 0){
             hasCards = <p>no cards remaining</p>
-
             hide = "hidden";
           }
         }
@@ -180,8 +147,6 @@
         }
 
         async function swapCards(index1, index2){
-          console.log(index1, index2)
-          console.log("start", hand)
           const tempHand = [];
 
           for(let i=0; i<hand.length; i++){
@@ -189,80 +154,65 @@
           }
           tempHand[index1] = hand[index2];
           tempHand[index2] = hand[index1];
-          console.log("temp", tempHand);
 
           await setHand(tempHand);
-          console.log("hand set", hand)
         }
-      //   function pickHandler(event){
-      //     if (picked == null){
-      //       pick(event)
 
-      //       console.log(hand.findLastIndex(findCardIndex, event.currentTarget.id))
-      //     }else if (picked != null && event.target.className == "picked"){
-      //       unpick(event)
-      //     }else{
-      //       swapCards(event)
-      //  } }
+        async function tossCard(){
+          if (picked === null){
+            alert("no card selected")
+          }else{
+            const tempHand = [];
+            for(let i=0; i<hand.length; i++){
+              if (i != pickedIndex){
+                tempHand[i] = hand[i];
+              }
+            }
+            await setHand(tempHand);
+          }
+        }
 
-      //   function pick(event){
-      //     event.target.className = "picked"
-      //     picked = event.target;
-      //   }
+        async function regroup(){
 
-      //   function unpick(event){
-      //     picked.className = null
-      //     picked = null
-      //   }
+          const tempHand = [];
 
-      //   async function swapCards(event){
-      //     console.log("start", hand)
-      //     let clickI = hand.indexOf(event.target);
-      //     let pickI = hand.indexOf(picked);
-      //     const tempHand = [];
+          for(let i=0; i<hand.length; i++){
+            tempHand[i] = hand[i];
+          }
 
-      //     console.log("pick",pickI)
-      //     console.log("click",clickI)
+          for (let i = hand.length - 1; i > 0; i--) { 
+            const j = Math.floor(Math.random() * (i + 1)); 
+            [tempHand[i], tempHand[j]] = [tempHand[j], tempHand[i]]; 
+          } ; 
+          await setHand(tempHand);
+        }
 
-      //     for(let i=0; i<hand.length; i++){
-      //       tempHand[i] = hand[i];
-      //     }
-      //     tempHand[pickI] = hand[clickI];
-      //     tempHand[clickI] = hand[pickI];
-      //     console.log("temp", tempHand);
-
-      //     await setHand(hand => {
-      //       hand = [...tempHand];
-      //       console.log("in")
-      //     });
-      //     console.log("hand set", hand)
-      
-      //   }
-
-        // function findCardIndex(id){
-
-        //   console.log("id",id.props.id,"this",this)
-        //   console.log(id.props.id == this)
-        //   return id.props.id == this;
-
-        // }
-
-        
-        
+        async function wildCard(){
+          let suit = suits[Math.floor(Math.random() * 4)]
+          let value = (Math.floor(Math.random() * 13) + 1)
+          let name = "images/" + suit + value + ".jpg";
+          let id = wildCount + suit + value;
+            
+          await setHand(hand =>[
+            ...hand,
+            <Card key={id} id={id} src={name} />
+          ]);
+          wildCount++
+        }
 
         let handDisplay = hand.map((card, index) => (
                 {card}
               ))
-//const providerValue = {hand, swapCards};
+
         return(
           <>
             <div onClick={addCard} ><img src="images/TOP.jpg" hidden={hide}/>{hasCards}</div>
             <button onClick={addFive}>Deal 5</button>
             <button onClick={addSeven}>Deal 7</button>
             <button onClick={reset}>Reset</button>
-            <button>Toss</button>
-            <button>Wildcard</button>
-            <button>Regroup</button>
+            <button onClick={tossCard}>Toss</button>
+            <button onClick={wildCard}>Wildcard</button>
+            <button onClick={regroup}>Regroup</button>
             <handContext.Provider value={[hand, swapCards]}>
             <div>
               {hand}
@@ -273,9 +223,6 @@
         )
       }
 
-
-      //const deck = createDeck();
-      
       const hand = [];
       
       const container = document.getElementById('myList');
@@ -285,8 +232,6 @@
           <Hand />
         </div>
       );
-      //console.log(deck)
-
       
     </script>
 
