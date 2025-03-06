@@ -29,11 +29,19 @@
 
       const suits = ["CLUBS","HEARTS","SPADES","DIAMONDS"];
       const handContext = React.createContext()
+      const pickContext = React.createContext()
       var hide = ""
       var hasCards = "";
       var picked = null;
       var pickedIndex = null;
       var wildCount = 0;
+
+      function unpick(){
+        if (picked != null){
+        picked.className = null
+        picked = null
+        pickedIndex = null}
+      }
 
       function createDeck(){
         let deck = [];
@@ -72,12 +80,6 @@
           pickedIndex = findCardIndex(picked.id);
         }
 
-        function unpick(){
-          picked.className = null
-          picked = null
-          pickedIndex = null
-        }
-
         function findCardIndex(id){
           let i = 0
           let found = false;
@@ -94,7 +96,9 @@
           return i;
         }
 
-        return <img onClick={pickHandler} id={props.id} src={props.src}/>;
+        return (
+          <img onClick={pickHandler} id={props.id} src={props.src}/>
+        );
       }
 
       const deck = createDeck();
@@ -103,6 +107,7 @@
         const [hand, setHand] = React.useState([]);
 
         async function addCard(){
+          unpick()
           await setHand(hand =>[
             ...hand,
             deck[0]
@@ -130,6 +135,7 @@
 
         async function reset(){
           // put hand back in deck
+          unpick()
           for (let i=0; i<hand.length; i++){
             deck.push(hand[i])
           }
@@ -173,7 +179,7 @@
         }
 
         async function regroup(){
-
+          unpick()
           const tempHand = [];
 
           for(let i=0; i<hand.length; i++){
@@ -188,6 +194,7 @@
         }
 
         async function wildCard(){
+          unpick()
           let suit = suits[Math.floor(Math.random() * 4)]
           let value = (Math.floor(Math.random() * 13) + 1)
           let name = "images/" + suit + value + ".jpg";
@@ -232,7 +239,7 @@
           <Hand />
         </div>
       );
-      
+
     </script>
 
   </body>
