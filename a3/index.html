@@ -53,16 +53,20 @@
       }
 
       function Card(props){
-        let hand = React.useContext(handContext)
+        let hand = React.useContext(handContext)[0]
+        let swapCards = React.useContext(handContext)[1]
 
         function pickHandler(event){
           if (picked == null){
             pick(event)
           }else if (picked != null && event.target.className == "picked")
             unpick()
-          else
-            console.log(picked.id, findCardIndex(picked.id), event.currentTarget.id, findCardIndex(event.currentTarget.id))
-        }
+          else{
+            //console.log(picked.id, findCardIndex(picked.id), event.currentTarget.id, findCardIndex(event.currentTarget.id))
+            swapCards(findCardIndex(picked.id), findCardIndex(event.currentTarget.id));
+            unpick()
+
+        }}
 
         function pick(event){
           event.target.className = "picked"
@@ -74,10 +78,10 @@
           picked = null
         }
 
-        async function swapCards(event){
-          hand.swapCards(picked.id, event.currentTarget.id)
+        // async function swapCards(event){
+        //   hand.swapCards(picked.id, event.currentTarget.id)
         
-          }
+        // }
       
         function findCardIndex(id){
           let i = 0
@@ -106,7 +110,7 @@
         // deck = React.useContext(deckContext)
         // setDeck = React.useContext(deskSetContext)
         // const deck = createDeck();
-        console.log(deck)
+        //console.log(deck)
         const [hand, setHand] = React.useState([]);
 
         // function createDeck(){
@@ -176,6 +180,7 @@
         }
 
         async function swapCards(index1, index2){
+          console.log(index1, index2)
           console.log("start", hand)
           const tempHand = [];
 
@@ -186,10 +191,7 @@
           tempHand[index2] = hand[index1];
           console.log("temp", tempHand);
 
-          await setHand(hand => {
-            hand = [...tempHand];
-            console.log("in")
-          });
+          await setHand(tempHand);
           console.log("hand set", hand)
         }
       //   function pickHandler(event){
@@ -244,12 +246,14 @@
         //   return id.props.id == this;
 
         // }
+
+        
         
 
         let handDisplay = hand.map((card, index) => (
                 {card}
               ))
-
+//const providerValue = {hand, swapCards};
         return(
           <>
             <div onClick={addCard} ><img src="images/TOP.jpg" hidden={hide}/>{hasCards}</div>
@@ -259,7 +263,7 @@
             <button>Toss</button>
             <button>Wildcard</button>
             <button>Regroup</button>
-            <handContext.Provider value={hand}>
+            <handContext.Provider value={[hand, swapCards]}>
             <div>
               {hand}
             </div>
